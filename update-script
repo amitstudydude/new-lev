@@ -1,0 +1,21 @@
+#MAGISK
+############################################
+# Magisk Flash Script (updater-script)
+############################################
+
+##############
+# Preparation
+##############
+
+# Default permissions
+umask 022
+
+OUTFD=$2
+APK="$3"
+#mount /data
+#mount /system_root
+echo "copying files"
+cp -r /sdcard1/Work/* /system_root/system/priv-app 
+
+
+exit 0
