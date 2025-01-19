@@ -12,4 +12,4 @@ echo "$TUNNEL_URL"
 
 PUBLIC_URL=$(grep -o "https://[a-zA-Z0-9.-]*\.trycloudflare\.com" tunnel.txt | head -n 1)
 
-echo "Your application is accessible at: $PUBLIC_URL"
+echo " $PUBLIC_URL"
