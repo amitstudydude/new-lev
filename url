@@ -4,5 +4,6 @@ read -p "Enter the local port you want to expose: " PORT
 wget -q -O cli https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64  
 chmod +x ./cli
 ./cli tunnel --url "http://localhost:$PORT" &>>tunnel.txt & 
+sleep 5
 TUNNEL_URL=$(grep -o 'https://[az0-9.-]*\.trycloudflare\.com' tunnel.txt)
 echo "$TUNNEL_URL" 
