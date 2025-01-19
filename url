@@ -1,15 +1,11 @@
-mkdir ort
-cd ort
+
 read -p "Enter the local port you want to expose: " PORT
+mkdir -p $PORT && cd $PORT
 wget -q -O cli https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64  
 chmod +x ./cli
 ./cli tunnel --url "http://localhost:$PORT" &>>tunnel.txt & 
 sleep 5
-TUNNEL_URL=$(grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt)
-grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt
-echo "$TUNNEL_URL" 
-
 
 PUBLIC_URL=$(grep -o "https://[a-zA-Z0-9.-]*\.trycloudflare\.com" tunnel.txt | head -n 1)
 
-echo " $PUBLIC_URL"
+echo " $PUBLIC_URL" >"$PORT.txt"
