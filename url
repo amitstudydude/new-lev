@@ -13,3 +13,4 @@ echo " $PUBLIC_URL"
 sleep 5
 echo " $PORT" > port
 echo " $PUBLIC_URL" > tunnel.txt
+rm ~/url
