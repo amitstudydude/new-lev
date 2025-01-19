@@ -8,4 +8,4 @@ sleep 5
 
 PUBLIC_URL=$(grep -o "https://[a-zA-Z0-9.-]*\.trycloudflare\.com" tunnel.txt | head -n 1)
 
-echo " $PUBLIC_URL" &>> "$PORT.txt"
+echo " $PUBLIC_URL" 
