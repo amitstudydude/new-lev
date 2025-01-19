@@ -7,5 +7,5 @@ chmod +x ./cli
 sleep 5
 
 PUBLIC_URL=$(grep -o "https://[a-zA-Z0-9.-]*\.trycloudflare\.com" tunnel.txt | head -n 1)
-
+echo " $PORT" 
 echo " $PUBLIC_URL" 
