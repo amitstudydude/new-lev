@@ -6,5 +6,5 @@ chmod +x ./cli
 ./cli tunnel --url "http://localhost:$PORT" &>>tunnel.txt & 
 sleep 5
 TUNNEL_URL=$(grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt)
-
+grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt
 echo "$TUNNEL_URL" 
