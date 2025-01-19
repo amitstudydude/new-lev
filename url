@@ -8,3 +8,8 @@ sleep 5
 TUNNEL_URL=$(grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt)
 grep -o 'https://[az0-9.-]*\.trycloudflare\.com' ~/ort/tunnel.txt
 echo "$TUNNEL_URL" 
+
+
+PUBLIC_URL=$(grep -o "https://[a-zA-Z0-9.-]*\.trycloudflare\.com" tunnel.txt | head -n 1)
+
+echo "Your application is accessible at: $PUBLIC_URL"
