@@ -1,9 +1,9 @@
 cd
-read -p "Enter the local port you want to expose: " PORT
+read -p "Enter the local url you want to expose: " PORT
 mkdir -p $PORT && cd $PORT
 wget -q -O cli https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64  
 chmod +x ./cli
-./cli tunnel --url "http://localhost:$PORT" &>>tunnel.txt & 
+./cli tunnel --url "http://$PORT" &>>tunnel.txt & 
 echo "Generating..."
 sleep 5
 
