@@ -1,6 +1,28 @@
+#!/bin/bash
+
+# Step 1: Generate a self-signed SSL certificate
 echo "Generating a self-signed SSL certificate..."
-mkdir -p ~/nextcloud-ssl openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ~/nextcloud-ssl/nextcloud.key -out ~/nextcloud-ssl/nextcloud.crt  -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
-docker run -d --name nextcloud -p 8080:80 -p 8443:443 -v nextcloud_data:/var/www/html -v ~/nextcloud-ssl/nextcloud.crt:/etc/ssl/certs/nextcloud.crt:ro -v nextcloud-ssl/nextcloud.key:/etc/ssl/private/nextcloud.key:ro nextcloud:latest
+mkdir -p ~/nextcloud-ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout ~/nextcloud-ssl/nextcloud.key \
+  -out ~/nextcloud-ssl/nextcloud.crt \
+  -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
+
+# Step 2: Run Nextcloud container with HTTP and HTTPS ports exposed
+echo "Starting Nextcloud Docker container..."
+docker run -d \
+  --name nextcloud \
+  -p 8080:80 \
+  -p 8443:443 \
+  -v nextcloud_data:/var/www/html \
+  -v ~/nextcloud-ssl/nextcloud.crt:/etc/ssl/certs/nextcloud.crt:ro \
+  -v ~/nextcloud-ssl/nextcloud.key:/etc/ssl/private/nextcloud.key:ro \
+  nextcloud:latest
+
+# Step 3: Configure Apache inside the Nextcloud container
+echo "Configuring Apache for SSL..."
+
+# Create SSL configuration for Apache
 docker exec -it nextcloud bash -c "echo '<VirtualHost *:443>
   DocumentRoot /var/www/html
   SSLEngine on
@@ -16,6 +38,13 @@ docker exec -it nextcloud bash -c "echo '<VirtualHost *:443>
   ErrorLog \${APACHE_LOG_DIR}/error.log
   CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>' > /etc/apache2/sites-available/nextcloud-ssl.conf"
+
+# Enable SSL and the new site configuration
 docker exec -it nextcloud bash -c "a2enmod ssl"
 docker exec -it nextcloud bash -c "a2ensite nextcloud-ssl.conf"
+
+# Restart Apache inside the container
 docker exec -it nextcloud apache2ctl restart
+
+# Step 4: Finish and notify the user
+echo "Nextcloud is now running with SSL enabled at https://<your-server-ip>:8443"
