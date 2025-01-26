@@ -2,11 +2,7 @@
 
 # Step 1: Generate a self-signed SSL certificate
 echo "Generating a self-signed SSL certificate..."
-mkdir -p ~/nextcloud-ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout ~/nextcloud-ssl/nextcloud.key \
-  -out ~/nextcloud-ssl/nextcloud.crt \
-  -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
+mkdir -p ~/nextcloud-ssl openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ~/nextcloud-ssl/nextcloud.key -out ~/nextcloud-ssl/nextcloud.crt  -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 
 # Step 2: Run Nextcloud container with HTTP and HTTPS ports exposed
 echo "Starting Nextcloud Docker container..."
