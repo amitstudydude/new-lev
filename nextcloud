@@ -6,14 +6,7 @@ mkdir -p ~/nextcloud-ssl openssl req -x509 -nodes -days 365 -newkey rsa:2048 -ke
 
 # Step 2: Run Nextcloud container with HTTP and HTTPS ports exposed
 echo "Starting Nextcloud Docker container..."
-docker run -d \
-  --name nextcloud \
-  -p 8080:80 \
-  -p 8443:443 \
-  -v nextcloud_data:/var/www/html \
-  -v ~/nextcloud-ssl/nextcloud.crt:/etc/ssl/certs/nextcloud.crt:ro \
-  -v ~/nextcloud-ssl/nextcloud.key:/etc/ssl/private/nextcloud.key:ro \
-  nextcloud:latest
+docker run -d --name nextcloud -p 8080:80 -p 8443:443 -v nextcloud_data:/var/www/html -v ~/nextcloud-ssl/nextcloud.crt:/etc/ssl/certs/nextcloud.crt:ro -v nextcloud-ssl/nextcloud.key:/etc/ssl/private/nextcloud.key:ro nextcloud:latest
 
 # Step 3: Configure Apache inside the Nextcloud container
 echo "Configuring Apache for SSL..."
