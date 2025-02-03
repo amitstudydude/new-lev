@@ -1,0 +1,7 @@
+  docker run -d \
+    --restart unless-stopped \
+    --name cockpit \
+    -p 1080:9090 \
+    -v /var/run:/var/run \
+    cockpit/cockpit
+  
