@@ -1,7 +1,5 @@
-  docker run -d \
-    --restart unless-stopped \
-    --name cockpit \
-    -p 1080:9090 \
-    -v /var/run:/var/run \
-    cockpit/cockpit
-  
+#!/bin/bash 
+sudo apt install -y cockpit
+sudo systemctl enable --now cockpit.socket
+sudo bash -c 'echo "AllowRoot=true" >> /etc/cockpit/cockpit.conf.d/50-allow-root.conf'
+sudo systemctl restart cockpit
