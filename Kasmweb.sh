@@ -11,7 +11,33 @@ sudo bash kasm_release/install.sh --accept-eula --swap-size 4096 --admin-passwor
 cd /opt/kasm/current/certs
 rm kasm_nginx.crt kasm_nginx.key
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/kasm/current/certs/kasm_nginx.key -out /opt/kasm/current/certs/kasm_nginx.crt -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+sudo tee /etc/nginx/sites-available/kasm > /dev/null <<EOF
+server {
+    listen 80;
+    server_name localhost;
+    # Redirect HTTP to HTTPS
+    return 301 https://\$host\$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name localhost;
+    ssl_certificate /opt/kasm/current/certs/kasm_nginx.crt;
+    ssl_certificate_key /opt/kasm/current/certs/kasm_nginx.key;
+    location / {
+        proxy_pass http://127.0.0.1:7887;  # Forward requests to your backend
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+sudo ln -s /etc/nginx/sites-available/kasm /etc/nginx/sites-enabled/
 sudo chown kasm:kasm /opt/kasm/current/certs/kasm_nginx.key /opt/kasm/current/certs/kasm_nginx.crt
 sudo chmod 600 /opt/kasm/current/certs/kasm_nginx.key
+sudo nginx -t
+sudo systemctl restart nginx
+echo "Nginx is configured to serve on HTTPS with a self-signed certificate."
+echo "You can access the service at https://localhost"
 sudo /opt/kasm/bin/stop
 sudo /opt/kasm/bin/start
