@@ -1,8 +1,7 @@
 
 sudo bash -c "$(wget -q https://pacstall.dev/q/install -O -)"   
 pacstall -I awesome-git
-apt install nala awesome 
-nala install network-manager light alsa-utils acpi playerctl scrot picom libplayerctl-dev redshift gpick nitrogen lxappearance
+apt install nala awesome  network-manager light alsa-utils acpi playerctl scrot picom libplayerctl-dev redshift gpick nitrogen lxappearance
 git clone -b topbar_dock https://github.com/Amitabha37377/Awful-DOTS.git
 cd Awful-DOTS
 mkdir ~/.themes
