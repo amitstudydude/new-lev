@@ -1,4 +1,5 @@
 #!/bin/bash
+wget https://download.nomachine.com/download/8.16/Linux/nomachine_8.16.1_1_amd64.deb && apt install ./nomachine_8.16.1_1_amd64.deb && rm ./nomachine_8.16.1_1_amd64.deb
 cd /tmp
 curl -O https://kasm-static-content.s3.amazonaws.com/kasm_release_1.16.1.98d6fa.tar.gz
 tar -xf kasm_release_1.16.1.98d6fa.tar.gz
