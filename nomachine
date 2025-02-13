@@ -4,7 +4,7 @@ wget https://download.nomachine.com/download/8.16/Linux/nomachine_8.16.1_1_amd64
 docker run -it --init --rm --network host ekzhang/bore local 3389 --to bore.pub >/bore &
 grep -o  'bore.pub:[0-9]\+' /bore >>/openport
 export PORT=4000 
-echo "echo $PORT && docker run -it --init --rm --network host ekzhang/bore local "$PORT" --to bore.pub >/bore " >/temp-script
+echo "echo $PORT && docker run -it --init --rm --network host ekzhang/bore local "$PORT" --to bore.pub >/bore & cat /bore " >/temp-script
 bash /temp-script 
 echo "Generating..." && sleep 5
 grep -o  'bore.pub:[0-9]\+' /bore >>"/$PORT"
