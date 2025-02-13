@@ -5,6 +5,6 @@ docker run -it --init --rm --network host ekzhang/bore local 3389 --to bore.pub 
 grep -o  'bore.pub:[0-9]\+' /bore >>/openport
 
 echo "export PORT=4000 && echo $PORT && docker run -it --init --rm --network host ekzhang/bore local "$PORT" --to bore.pub >/bore " >/temp-script
-bash /temp-script &
+bash /temp-script 
 echo "Generating..." && sleep 5
 grep -o  'bore.pub:[0-9]\+' /bore >>"/$PORT"
