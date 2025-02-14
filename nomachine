@@ -1,8 +1,6 @@
 wget -q -O nomachine.deb https://download.nomachine.com/download/8.16/Linux/nomachine_8.16.1_1_amd64.deb && sudo dpkg -i ./nomachine.deb &>>/dev/null
 rm nomachine.deb
-#wget https://openport.io/download/debian64/latest.deb && sudo dpkg -i latest.deb && rm *.deb
-#openport 4000 >/openport &
-#export PORT=4000 
-docker run --init --rm --network host ekzhang/bore local 3389 --to bore.pub | grep -o  'bore.pub:[0-9]\+' &
-echo "Generating..." && sleep 3
-docker run --init --rm --network host ekzhang/bore local 4000 --to bore.pub | grep -o  'bore.pub:[0-9]\+' &
+export port=3389 && container_id=$(docker run --init --rm --network host -d ekzhang/bore local "$port" --to bore.pub) && sleep 2 && docker logs $container_id | grep -o 'bore.pub:[0-9]\+' > /"$port" && export output=$(cat /"$port")
+echo "| $port $output |" >>/Amit/README.md
+export port=4000 && container_id=$(docker run --init --rm --network host -d ekzhang/bore local "$port" --to bore.pub) && sleep 2 && docker logs $container_id | grep -o 'bore.pub:[0-9]\+' > /"$port" && export output=$(cat /"$port")
+echo "| $port $output |" >>/Amit/README.md
