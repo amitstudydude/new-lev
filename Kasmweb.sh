@@ -8,4 +8,6 @@ sudo kill -9 $pid
 pid=$(lsof -t -i:7887)
 sudo kill -9 $pid
 sudo bash kasm_release/install.sh --accept-eula --swap-size 4096 --admin-password root --user-password root
+ssh -R 80:localhost:80 nglocalhost.com
+        
 
