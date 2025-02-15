@@ -1,0 +1,27 @@
+#!/bin/bash
+apt install --no-install-recommends ubuntu-desktop
+# Create the gdm3.service unit file
+cat << EOF > /etc/systemd/system/gdm3.service
+[Unit]
+Description=GNOME Display Manager
+Documentation=man:gdm(1)
+After=systemd-user-sessions.service
+Wants=systemd-user-sessions.service
+[Service]
+ExecStart=/usr/sbin/gdm3
+Restart=always
+BusName=org.gnome.DisplayManager
+Environment=G_SETTINGS_SCHEMA_DIR=/usr/share/glib-2.0/schemas
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gdm3
+[Install]
+WantedBy=graphical.target
+EOF
+# Reload systemd to recognize the new unit file
+systemctl daemon-reload
+# Enable GDM to start at boot
+systemctl enable gdm3
+# Start GDM
+systemctl start gdm3
+echo "GDM3 service has been created, enabled, and started."
