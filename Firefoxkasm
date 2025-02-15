@@ -1,4 +1,3 @@
-git clone https://github.com/kasmtech/workspaces-images.git
-cd workspaces-images
-sudo docker build -t kasmweb/firefox:dev -f dockerfile-kasm-firefox .
-sudo docker run --rm  -it --shm-size=512m -p 6901:6901 -e VNC_PW=password kasmweb/firefox:dev
+docker run -d --name=docker-remote-desktop -e PUID=1000 -e PGID=1000  -e TZ=Asia/Kolkata -p 7777:3000 -p 7778:3001 -v /path/to/config:/config --restart unless-stopped  ghcr.io/lanjelin/docker-remote-desktop:latest  
+
+
