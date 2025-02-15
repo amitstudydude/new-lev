@@ -1,0 +1,4 @@
+git clone https://github.com/kasmtech/workspaces-images.git
+cd workspaces-images
+sudo docker build -t kasmweb/firefox:dev -f dockerfile-kasm-firefox .
+sudo docker run --rm  -it --shm-size=512m -p 6901:6901 -e VNC_PW=password kasmweb/firefox:dev
