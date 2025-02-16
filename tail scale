@@ -1,2 +1,2 @@
 curl -fsSL https://tailscale.com/install.sh | sh
-tailscale up --auth-key=tskey-api-kmwrpngKWb11CNTRL-ZaKZbvVDKxEPWFPyzvFyxE2gB18vM1MM
+tailscale up --auth-key=tskey-auth-kxx9DrQM8d11CNTRL-B5kwtCiv8991bHnpVk3m99FFTWZZ45NE
