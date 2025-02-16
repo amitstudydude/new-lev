@@ -3,16 +3,39 @@ docker rm headscale headscale-ui
 cat << EOF > docker-compose.yaml
 version: '3.5'
 services:
-  headscale:
-    image: headscale/headscale
-    container_name: headscale
+  headscale-app:
+    image: tiredofit/headscale:latest
+    container_name: headscale-app
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.headscale-server.rule=Host(`headscale.example.com`) && PathPrefix(`/`)
+      - traefik.http.services.headscale-server.loadbalancer.server.port=8080
+      - traefik.http.routers.headscale-server.service=headscale-server
+      - traefik.http.routers.headscale-ui.rule=Host(`headscale.example.com`) && PathPrefix(`/web`)
+      - traefik.http.services.headscale-ui.loadbalancer.server.port=80
+      - traefik.http.routers.headscale-ui.service=headscale-ui
     volumes:
-      - ./container-config:/etc/headscale
-      - ./container-data/data:/var/lib/headscale
-    ports:
-      - 27896:8080
-    command: serve
+      - ./config:/config
+      - ./data:/data
+      - ./logs:/logs
+    environment:
+      - TIMEZONE=America/Vancouver
+      - CONTAINER_NAME=headscale-app
+      - SETUP_TYPE=AUTO
+
+      - MODE=SERVER,UI
+      - LISTEN_PORT=8080
+      - SERVER_URL=https://headscale.example.com
+    networks:
+      - proxy
+      - services
     restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
+  services:
+    external: true
   headscale-ui:
     image: ghcr.io/gurucomputing/headscale-ui:latest
     restart: unless-stopped
