@@ -4,7 +4,7 @@ cleanup() {
   echo "An error occurred. Cleaning up..."
   # Stop and remove the Docker containers
   docker-compose down
-  # Optionally remove the database volume
+  # Remove the database volume
   rm -rf ./db
   exit 1
 }
@@ -27,16 +27,16 @@ services:
     environment:
       - GUACD_HOSTNAME=guacd
       - POSTGRESQL_HOSTNAME=database
-      - POSTGRESQL_DATABASE=root            # Database name set to "root"
-      - POSTGRESQL_USER=root                # User set to "root"
-      - POSTGRESQL_PASSWORD=root             # Password set to "root"
+      - POSTGRESQL_DATABASE=guacamole         # Use a valid database name
+      - POSTGRESQL_USER=root                   # User set to "root"
+      - POSTGRESQL_PASSWORD=root                # Password set to "root"
   database:
     restart: always
     image: postgres:15.5-alpine
     environment:
-      - POSTGRES_USER=postgres              # Use the default PostgreSQL superuser
-      - POSTGRES_DB=root                    # Create the database with the name "root"
-      - POSTGRES_PASSWORD=root               # Set the PostgreSQL password to "root"
+      - POSTGRES_USER=postgres                 # Default PostgreSQL superuser
+      - POSTGRES_DB=guacamole                  # Name of the database to create
+      - POSTGRES_PASSWORD=root                  # Password for the PostgreSQL superuser
     volumes:
       - ./db:/var/lib/postgresql/data:rw
 EOF
@@ -54,11 +54,14 @@ initialize_schema() {
   until docker exec $(docker-compose ps -q database) pg_isready -U postgres; do
     sleep 2
   done
-  # Create the 'root' user in PostgreSQL and grant it all privileges
-  docker exec -i $(docker-compose ps -q database) psql -U postgres -c "CREATE ROLE root WITH LOGIN PASSWORD 'root';"
-  docker exec -i $(docker-compose ps -q database) psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE root TO root;"
-  # Run the schema initialization using the created user (correct command)
-  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql --users=root --password=root --databases=root
+  echo "Creating role 'root' in PostgreSQL..."
+  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "CREATE ROLE root WITH LOGIN PASSWORD 'root';" || true
+  
+  echo "Granting privileges to 'root' user on database 'guacamole'..."
+  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "GRANT ALL PRIVILEGES ON DATABASE guacamole TO root;" || true
+  # Run the schema initialization command for Guacamole
+  echo "Running database initialization..."
+  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql --users=root --password=root --databases=guacamole
 }
 # Main script execution
 start_containers
