@@ -59,7 +59,7 @@ docker-compose up -d
 echo "Copying the initdb.sql file to the database container..."
 docker cp initdb.sql guacamoledb:/initdb.sql
 echo "Initializing the database..."
-docker exec -i guacamoledb /bin/bash -c "mysql -u root -p $MYSQL_DATABASE < /initdb.sql"
+docker exec -i guacamoledb /bin/bash -c "mysql -u root -p $MYSQL_ROOT_PASSWORD < /initdb.sql"
 # Clean up
 echo "Cleaning up..."
 docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
