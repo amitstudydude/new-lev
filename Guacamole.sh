@@ -70,9 +70,7 @@ services:
   guacd:
     container_name: guacd
     image: guacamole/guacd:1.4.0
-    restart: unless-stopped
-    networks: 
-      - host                      
+    restart: unless-stopped                 
   guacamole:
     container_name: guacamole
     image: guacamole/guacamole:1.4.0
