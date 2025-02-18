@@ -80,7 +80,6 @@ services:
       MYSQL_DATABASE: "guacamole_db"
       MYSQL_USER: "guacamole_user"
       MYSQL_PASSWORD: "MariaDBUserPass"
-      TOTP_ENABLED: "true"
     depends_on:
       - guacdb
       - guacd
