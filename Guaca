@@ -12,6 +12,15 @@ docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/
 docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true  # Remove dangling volumes
 rm -f docker-compose.yml initdb.sql  # Remove previous compose and init SQL files
 rm -rf ./db-data  # Remove database data directory if exists
+# Create ~/.my.cnf for MySQL credentials
+echo "Creating MySQL credentials file at ~/.my.cnf..."
+cat <<EOL > ~/.my.cnf
+[client]
+user=root
+password=$MYSQL_ROOT_PASSWORD
+EOL
+# Set permissions for the .my.cnf file
+chmod 600 ~/.my.cnf
 # Pull Docker images
 echo "Pulling Docker images..."
 docker pull guacamole/guacamole:1.4.0
