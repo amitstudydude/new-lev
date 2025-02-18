@@ -36,7 +36,6 @@ EOF
 
    docker run --name guacamole1 \
      --network host \
-     -p 4567:8080 \
      -e GUACD_HOSTNAME="localhost" \
      -e MYSQL_HOSTNAME="localhost" \
      -e MYSQL_DATABASE="guacamole_db" \
