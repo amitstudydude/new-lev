@@ -20,7 +20,7 @@ docker run --name guacamoledb \
   -v $(pwd)/db-data:/var/lib/mysql \
   -d mariadb:10.9.5
 echo "Waiting for MariaDB to initialize..."
-sleep 30
+sleep 5
 echo "Creating MySQL configuration file inside the MariaDB container..."
 docker exec -i guacamoledb bash -c "echo -e '[client]\nuser=root\npassword=MariaDBRootPass' > /root/.my.cnf"
 docker exec -i guacamoledb bash -c "chmod 600 /root/.my.cnf"
