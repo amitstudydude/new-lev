@@ -4,6 +4,14 @@ MYSQL_ROOT_PASSWORD='MariaDBRootPass'
 MYSQL_DATABASE='guacamole_db'
 MYSQL_USER='guacamole_user'
 MYSQL_PASSWORD='MariaDBUserPass'
+# Cleanup any existing containers, images, or volumes for Guacamole
+echo "Cleaning up existing Docker containers, images, and volumes..."
+docker-compose down 2>/dev/null || true  # Stops and removes containers without error if they do not exist
+docker rm -f guacamoledb guacd guacamole 2>/dev/null || true  # Force remove existing containers
+docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true  # Force remove images
+docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true  # Remove dangling volumes
+rm -f docker-compose.yml initdb.sql  # Remove previous compose and init SQL files
+rm -rf ./db-data  # Remove database data directory if exists
 # Pull Docker images
 echo "Pulling Docker images..."
 docker pull guacamole/guacamole:1.4.0
@@ -27,6 +35,7 @@ services:
       MYSQL_PASSWORD: '$MYSQL_PASSWORD'
     volumes:
       - './db-data:/var/lib/mysql'
+      - ~/.my.cnf:/root/.my.cnf  # Mounting the .my.cnf file
   guacd:
     container_name: guacd
     image: guacamole/guacd:1.4.0
@@ -55,11 +64,12 @@ mkdir -p db-data
 # Start Docker containers
 echo "Starting Docker containers..."
 docker-compose up -d
-# Copy the SQL file to the database container and initialize the database
+# Copy the SQL file to the database container
 echo "Copying the initdb.sql file to the database container..."
 docker cp initdb.sql guacamoledb:/initdb.sql
-echo "Initializing the database..."
-docker exec -i guacamoledb /bin/bash -c "mysql -u root -p $MYSQL_ROOT_PASSWORD < /initdb.sql"
+# Initialize the database non-interactively using ~/.my.cnf
+echo "Initializing the database non-interactively using ~/.my.cnf..."
+docker exec -i guacamoledb mysql "$MYSQL_DATABASE" < initdb.sql
 # Clean up
 echo "Cleaning up..."
 docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
