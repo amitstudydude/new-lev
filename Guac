@@ -10,7 +10,7 @@ cleanup() {
 }
 # Trap any error and call the cleanup function
 trap cleanup ERR
-# Create the docker-compose.yml file directly with all variables set to "root"
+# Create the docker-compose.yml file directly
 cat <<EOF > docker-compose.yml
 version: '3'
 services:
