@@ -59,7 +59,7 @@ services:
     image: mariadb:10.9.5
     restart: unless-stopped
     networks: 
-          -host
+      - host
     environment:
       MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
       MYSQL_DATABASE: 'guacamole_db'
@@ -72,13 +72,13 @@ services:
     image: guacamole/guacd:1.4.0
     restart: unless-stopped
     networks: 
-          -host                      
+      - host                      
   guacamole:
     container_name: guacamole
     image: guacamole/guacamole:1.4.0
     restart: unless-stopped
     networks: 
-          -host                      
+      - host                      
     environment:
       GUACD_HOSTNAME: "localhost"             # Use localhost when using host networking
       MYSQL_HOSTNAME: "localhost"              # Use localhost when using host networking
