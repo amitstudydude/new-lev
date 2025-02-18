@@ -8,9 +8,9 @@ cleanup() {
   rm -rf ./db
   exit 1
 }
-# Trap any error and call the cleanup function
+# Trap any error and call cleanup function
 trap cleanup ERR
-# Create the docker-compose.yml file directly
+# Create the docker-compose.yml file
 cat <<EOF > docker-compose.yml
 version: '3'
 services:
@@ -27,16 +27,16 @@ services:
     environment:
       - GUACD_HOSTNAME=guacd
       - POSTGRESQL_HOSTNAME=database
-      - POSTGRESQL_DATABASE=root           # Database name set to "root"
-      - POSTGRESQL_USER=root               # User set to "root"
-      - POSTGRESQL_PASSWORD=root            # Password set to "root"
+      - POSTGRESQL_DATABASE=root            # Database name set to "root"
+      - POSTGRESQL_USER=root                # User set to "root"
+      - POSTGRESQL_PASSWORD=root             # Password set to "root"
   database:
     restart: always
     image: postgres:15.5-alpine
     environment:
-      - POSTGRES_USER=postgres             # Use the default PostgreSQL superuser
-      - POSTGRES_DB=root                   # Create the database with the name "root"
-      - POSTGRES_PASSWORD=root              # Set the PostgreSQL password to "root"
+      - POSTGRES_USER=postgres              # Use the default PostgreSQL superuser
+      - POSTGRES_DB=root                    # Create the database with the name "root"
+      - POSTGRES_PASSWORD=root               # Set the PostgreSQL password to "root"
     volumes:
       - ./db:/var/lib/postgresql/data:rw
 EOF
@@ -57,9 +57,8 @@ initialize_schema() {
   # Create the 'root' user in PostgreSQL and grant it all privileges
   docker exec -i $(docker-compose ps -q database) psql -U postgres -c "CREATE ROLE root WITH LOGIN PASSWORD 'root';"
   docker exec -i $(docker-compose ps -q database) psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE root TO root;"
-  # Run the schema initialization using the created user
-  docker exec -it $(docker-compose ps -q database) psql -U root -d root
-  # docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u root -p root root
+  # Run the schema initialization using the created user (correct command)
+  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql --users=root --password=root --databases=root
 }
 # Main script execution
 start_containers
