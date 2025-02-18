@@ -28,19 +28,8 @@ echo "Copying the initdb.sql file to the database container..."
 docker cp initdb.sql guacamoledb:/initdb.sql
 echo "Initializing the database non-interactively..."
 docker exec -i guacamoledb mysql -u root -pMariaDBRootPass guacamole_db < initdb.sql
-echo "Cleaning up..."
-docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
-echo "Starting Guacamole container..."
 docker run --name guacd -d guacamole/guacd:1.4.0
-docker run --name guacamole \
-  --link guacd:guacd \
-  -p 8080:8080 \
-  -e GUACD_HOSTNAME=guacd \
-  -e MYSQL_HOSTNAME=guacamoledb \
-  -e MYSQL_DATABASE=guacamole_db \
-  -e MYSQL_USER=guacamole_user \
-  -e MYSQL_PASSWORD=MariaDBUserPass \
-  -d guacamole/guacamole:1.4.0
+docker run --name guacamole --link guacd:guacd  -p 8080:8080  -e GUACD_HOSTNAME=guacd  -e MYSQL_HOSTNAME=guacamoledb -e MYSQL_DATABASE=guacamole_db  -e MYSQL_USER=guacamole_user  -e MYSQL_PASSWORD=MariaDBUserPass  -d guacamole/guacamole:1.4.0
 echo "Guacamole installation completed!"
 echo "Access Guacamole at http://<Your-IP>:8080/guacamole"
 echo "Default Username: guacadmin"
