@@ -58,24 +58,27 @@ services:
     container_name: guacamoledb
     image: mariadb:10.9.5
     restart: unless-stopped
-    network_mode: "host"                      # Set to host networking
+    networks: 
+          -host
     environment:
       MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
       MYSQL_DATABASE: 'guacamole_db'
       MYSQL_USER: 'guacamole_user'
       MYSQL_PASSWORD: 'MariaDBUserPass'
     volumes:
-      - db-data:/var/lib/mysql                 # Use named volume instead of relative path
+      - db-data:/var/lib/mysql                 
   guacd:
     container_name: guacd
     image: guacamole/guacd:1.4.0
     restart: unless-stopped
-    network_mode: "host"                      # Set to host networking
+    networks: 
+          -host                      
   guacamole:
     container_name: guacamole
     image: guacamole/guacamole:1.4.0
     restart: unless-stopped
-    network_mode: "host"                      # Set to host networking
+    networks: 
+          -host                      
     environment:
       GUACD_HOSTNAME: "localhost"             # Use localhost when using host networking
       MYSQL_HOSTNAME: "localhost"              # Use localhost when using host networking
