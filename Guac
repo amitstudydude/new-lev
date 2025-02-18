@@ -1,13 +1,6 @@
 #!/bin/bash
-# Define variables
-GUACAMOLE_DATABASE=guacamole
-POSTGRES_USER=root              # Set the PostgreSQL user to 'root'
-POSTGRES_PASSWORD=root          # Set the PostgreSQL root password to 'root'
-GUACAMOLE_PORT=8080
-WORK_DIR=$(pwd)
-# Function to create the docker-compose.yml file
-create_docker_compose() {
-  cat <<EOF > docker-compose.yml
+# Create the docker-compose.yml file directly with all variables set to "root"
+cat <<EOF > docker-compose.yml
 version: '3'
 services:
   guacd:
@@ -19,24 +12,23 @@ services:
     depends_on:
       - database
     ports:
-      - "${GUACAMOLE_PORT}:8080"
+      - "8080:8080"
     environment:
       - GUACD_HOSTNAME=guacd
       - POSTGRESQL_HOSTNAME=database
-      - POSTGRESQL_DATABASE=${GUACAMOLE_DATABASE}
-      - POSTGRESQL_USER=${POSTGRES_USER}
-      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=root           # Database name set to "root"
+      - POSTGRESQL_USER=root               # User set to "root"
+      - POSTGRESQL_PASSWORD=root            # Password set to "root"
   database:
     restart: always
     image: postgres:15.5-alpine
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}         # Set the PostgreSQL superuser
-      - POSTGRES_DB=${GUACAMOLE_DATABASE}       # Create the Guacamole database
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}   # Set the root password
+      - POSTGRES_USER=root                 # PostgreSQL superuser set to "root"
+      - POSTGRES_DB=root                   # Create the database with the name "root"
+      - POSTGRES_PASSWORD=root              # Set the root password
     volumes:
-      - ${WORK_DIR}/db:/var/lib/postgresql/data:rw
+      - ./db:/var/lib/postgresql/data:rw
 EOF
-}
 # Function to start Docker containers
 start_containers() {
   echo "Starting Docker containers..."
@@ -47,17 +39,16 @@ start_containers() {
 # Function to initialize the database schema
 initialize_schema() {
   echo "Initializing the Guacamole database schema..."
-  # Wait until the database is ready by checking connection
-  until docker exec $(docker-compose ps -q database) pg_isready -U $POSTGRES_USER; do
+  # Wait until the database is ready by checking the connection
+  until docker exec $(docker-compose ps -q database) pg_isready -U root; do
     sleep 2
   done
   # Run the schema initialization
-  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u $POSTGRES_USER -p $POSTGRES_PASSWORD ${GUACAMOLE_DATABASE}
+  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u root -p root root
 }
 # Main script execution
-create_docker_compose
 start_containers
 initialize_schema
-echo "Apache Guacamole setup is complete. Access it at http://localhost:${GUACAMOLE_PORT}"
+echo "Apache Guacamole setup is complete. Access it at http://localhost:8080"
 echo "Default username: guacadmin, Default password: guacadmin"
 echo "Please change the default password after logging in."
