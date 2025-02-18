@@ -3,7 +3,7 @@ docker pull guacamole/guacd:1.4.0
 docker pull mariadb:10.9.5
 docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
 apt install docker-compose
-cat << docker-compose.yaml > EOF
+cat << EOL > docker-compose.yaml
 version: '3'
 services:
   guacdb:
@@ -19,13 +19,13 @@ services:
       - './db-data:/var/lib/mysql'
 volumes:
   db-data:
-EOF
+EOL
 docker-compose up -d
 
 docker cp initdb.sql guacamoledb:/initdb.sql
 docker exec -it guacamoledb cat /initdb.sql | mysql -u root -p guacamole_db
 cp docker-compose.yml docker-compose.yml.bak
-cat << docker-compose.yaml > EOF
+cat << EOF > docker-compose.yaml
 version: '3'
 services:
   guacdb:
