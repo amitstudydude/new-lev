@@ -13,7 +13,7 @@ echo "Generating initial database SQL file..."
 docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
 echo "Starting MariaDB container..."
 
-cat <<docker-compose.yml >EOL
+cat << EOF > docker-compose.yml
 version: '3'
 services:
   guacdb:
@@ -29,7 +29,7 @@ services:
       - './db-data:/var/lib/mysql'
 volumes:
   db-data:
-EOL
+EOF
 docker-compose up -d
 
 docker cp initdb.sql guacamoledb:/initdb.sql
@@ -48,7 +48,7 @@ cp docker-compose.yml docker-compose.yml.bak
 
 
 
-cat <<docker-compose.yml >EOL
+cat << EOF > docker-compose.yml
 version: '3'
 services:
   guacdb:
@@ -84,7 +84,7 @@ services:
       - guacd
 volumes:
   db-data:
-EOL
+EOF
 docker-compose up -d
 rm *yml *yml*
 #docker run --name guacd -d guacamole/guacd:1.4.0
