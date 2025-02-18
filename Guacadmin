@@ -41,6 +41,7 @@ EOF
      -e MYSQL_DATABASE="guacamole_db" \
      -e MYSQL_USER="guacamole_user" \
      -e MYSQL_PASSWORD="MariaDBUserPass" \
+     -e GUACAMOLE_NOAUTH="true" \
      -d guacamole/guacamole:1.4.0
    
 
