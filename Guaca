@@ -3,12 +3,12 @@
 cleanup() {
   echo "An error occurred. Cleaning up..."
   # Stop and remove the Docker containers
-  docker-compose down
-  # Remove the database volume
+  docker-compose down -v
+  # Remove any created database files
   rm -rf ./db
   exit 1
 }
-# Trap any error and call cleanup function
+# Trap any error and call the cleanup function
 trap cleanup ERR
 # Create the docker-compose.yml file
 cat <<EOF > docker-compose.yml
@@ -26,17 +26,17 @@ services:
       - "8080:8080"
     environment:
       - GUACD_HOSTNAME=guacd
-      - POSTGRESQL_HOSTNAME=database
-      - POSTGRESQL_DATABASE=guacamole         # Use a valid database name
-      - POSTGRESQL_USER=root                   # User set to "root"
-      - POSTGRESQL_PASSWORD=root                # Password set to "root"
+      - POSTGRESQL_HOSTNAME=database            # Database hostname
+      - POSTGRESQL_DATABASE=guacamole            # Database name
+      - POSTGRESQL_USER=guac                    # User set to "guac"
+      - POSTGRESQL_PASSWORD=guacpassword         # Password for the user
   database:
     restart: always
     image: postgres:15.5-alpine
     environment:
-      - POSTGRES_USER=postgres                 # Default PostgreSQL superuser
-      - POSTGRES_DB=guacamole                  # Name of the database to create
-      - POSTGRES_PASSWORD=root                  # Password for the PostgreSQL superuser
+      - POSTGRES_USER=postgres                  # Use PostgreSQL superuser
+      - POSTGRES_DB=guacamole                   # Create the database "guacamole"
+      - POSTGRES_PASSWORD=mysecretpassword      # Set the PostgreSQL superuser password
     volumes:
       - ./db:/var/lib/postgresql/data:rw
 EOF
@@ -45,23 +45,35 @@ start_containers() {
   echo "Starting Docker containers..."
   docker-compose up -d
   echo "Waiting for PostgreSQL to initialize..."
-  sleep 15 # Wait for the database to initialize
+  sleep 15 # Wait for PostgreSQL to fully initialize
 }
-# Function to initialize the database schema
+# Function to initialize the Guacamole database schema
 initialize_schema() {
   echo "Initializing the Guacamole database schema..."
-  # Wait until the database is ready by checking the connection
+  
+  # Wait until the PostgreSQL database is ready by checking the connection
   until docker exec $(docker-compose ps -q database) pg_isready -U postgres; do
+    echo "Waiting for PostgreSQL to become ready..."
     sleep 2
   done
-  echo "Creating role 'root' in PostgreSQL..."
-  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "CREATE ROLE root WITH LOGIN PASSWORD 'root';" || true
   
-  echo "Granting privileges to 'root' user on database 'guacamole'..."
-  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "GRANT ALL PRIVILEGES ON DATABASE guacamole TO root;" || true
-  # Run the schema initialization command for Guacamole
-  echo "Running database initialization..."
-  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql --users=root --password=root --databases=guacamole
+  echo "Creating Guacamole user..."
+  
+  # Create the user (if it already exists, ignore the error)
+  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "CREATE ROLE guac LOGIN PASSWORD 'guacpassword';" || echo "User 'guac' already exists."
+  echo "Granting privileges to Guacamole user..."
+  
+  # Grant privileges to the user
+  docker exec -i $(docker-compose ps -q database) psql -U postgres -d guacamole -c "GRANT ALL PRIVILEGES ON DATABASE guacamole TO guac;" || echo "Privileges already granted."
+  echo "Running the Guacamole database initialization script..."
+  
+  # Run the schema initialization for Guacamole
+  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh \
+    --postgresql \
+    --users=guac \
+    --password=guacpassword \
+    --databases=guacamole
+  echo "Database initialization complete."
 }
 # Main script execution
 start_containers
