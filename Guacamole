@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "Cleaning up existing Docker containers, images, and volumes..."
+apt install docker-compose
 docker rm -f guacamoledb guacd guacamole 2>/dev/null || true
 docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true
 docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
