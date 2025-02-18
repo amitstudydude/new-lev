@@ -1,0 +1,49 @@
+#!/bin/bash
+
+apt install docker-compose
+docker rm -f guacamoledb guacd guacamole 2>/dev/null || true
+docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true
+docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
+rm -f initdb.sql
+rm -rf ./db-data
+docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
+   docker run --name guacamoledb \
+     --network host \
+     -e MYSQL_ROOT_PASSWORD='MariaDBRootPass' \
+     -e MYSQL_DATABASE='guacamole_db' \
+     -e MYSQL_USER='guacamole_user' \
+     -e MYSQL_PASSWORD='MariaDBUserPass' \
+     -v ./db-data:/var/lib/mysql \
+     -d mariadb:10.9.5
+   
+docker cp initdb.sql guacamoledb:/initdb.sql
+
+sudo /usr/bin/expect <<EOF
+spawn docker exec -it guacamoledb bash
+sleep 1
+send -- "cat /initdb.sql | mysql -u root -p guacamole_db\r"
+sleep 1
+send -- "MariaDBRootPass\r"
+sleep 1
+send -- "exit\r"
+expect eof
+EOF
+
+   docker run --name guacd \
+     --network host \
+     -d guacamole/guacd:1.4.0
+   
+
+   docker run --name guacamole \
+     --network host \
+     -e GUACD_HOSTNAME="localhost" \
+     -e MYSQL_HOSTNAME="localhost" \
+     -e MYSQL_DATABASE="guacamole_db" \
+     -e MYSQL_USER="guacamole_user" \
+     -e MYSQL_PASSWORD="MariaDBUserPass" \
+     -d guacamole/guacamole:1.4.0
+   
+
+
+echo "Access Guacamole at: http://localhost:8080/guacamole"
+echo "Default username/password: guacadmin/guacadmin"
