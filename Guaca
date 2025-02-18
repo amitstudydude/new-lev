@@ -1,0 +1,69 @@
+#!/bin/bash
+# Variables
+MYSQL_ROOT_PASSWORD='MariaDBRootPass'
+MYSQL_DATABASE='guacamole_db'
+MYSQL_USER='guacamole_user'
+MYSQL_PASSWORD='MariaDBUserPass'
+# Pull Docker images
+echo "Pulling Docker images..."
+docker pull guacamole/guacamole:1.4.0
+docker pull guacamole/guacd:1.4.0
+docker pull mariadb:10.9.5
+# Generate initial database SQL file
+echo "Generating initial database SQL file..."
+docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
+# Create the docker-compose.yml file
+cat <<EOL > docker-compose.yml
+version: '3'
+services:
+  guacdb:
+    container_name: guacamoledb
+    image: mariadb:10.9.5
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: '$MYSQL_ROOT_PASSWORD'
+      MYSQL_DATABASE: '$MYSQL_DATABASE'
+      MYSQL_USER: '$MYSQL_USER'
+      MYSQL_PASSWORD: '$MYSQL_PASSWORD'
+    volumes:
+      - './db-data:/var/lib/mysql'
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd:1.4.0
+    restart: unless-stopped
+  guacamole:
+    container_name: guacamole
+    image: guacamole/guacamole:1.4.0
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      GUACD_HOSTNAME: "guacd"
+      MYSQL_HOSTNAME: "guacdb"
+      MYSQL_DATABASE: "$MYSQL_DATABASE"
+      MYSQL_USER: "$MYSQL_USER"
+      MYSQL_PASSWORD: "$MYSQL_PASSWORD"
+      TOTP_ENABLED: "true"
+    depends_on:
+      - guacdb
+      - guacd
+volumes:
+  db-data:
+EOL
+# Create the directory for database data
+mkdir -p db-data
+# Start Docker containers
+echo "Starting Docker containers..."
+docker-compose up -d
+# Copy the SQL file to the database container and initialize the database
+echo "Copying the initdb.sql file to the database container..."
+docker cp initdb.sql guacamoledb:/initdb.sql
+echo "Initializing the database..."
+docker exec -i guacamoledb /bin/bash -c "mysql -u root -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < /initdb.sql"
+# Clean up
+echo "Cleaning up..."
+docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
+echo "Guacamole installation completed!"
+echo "Access Guacamole at http://<Your-IP>:8080/guacamole"
+echo "Default Username: guacadmin"
+echo "Default Password: guacadmin"
