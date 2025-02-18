@@ -34,7 +34,7 @@ EOF
      -d guacamole/guacd:1.4.0
    
 
-   docker run --name guacamole1 \
+ #  docker run --name guacamole1 \
      --network host \
      -e GUACD_HOSTNAME="localhost" \
      -e MYSQL_HOSTNAME="localhost" \
@@ -44,6 +44,15 @@ EOF
      -e GUACAMOLE_NOAUTH="true" \
      -d guacamole/guacamole:1.4.0
    
+docker run --name guacamole1 \
+  --network host \
+  -e GUACD_HOSTNAME="localhost" \
+  -e MYSQL_HOSTNAME="localhost" \
+  -e MYSQL_DATABASE="guacamole_db" \
+  -e MYSQL_USER="guacamole_user" \
+  -e MYSQL_PASSWORD="MariaDBUserPass" \
+  -e GUACAMOLE_NOAUTH="true" \
+  -d -p 4567:8080 guacamole/guacamole:1.4.0
 
 
 echo "Access Guacamole at: http://localhost:8080/guacamole"
