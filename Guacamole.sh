@@ -58,7 +58,8 @@ services:
     container_name: guacamoledb
     image: mariadb:10.9.5
     restart: unless-stopped
-    network: host
+    networks:
+      - host
     environment:
       MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
       MYSQL_DATABASE: 'guacamole_db'
@@ -70,12 +71,14 @@ services:
     container_name: guacd
     image: guacamole/guacd:1.4.0
     restart: unless-stopped
-    network: host
+    networks:
+      - host
   guacamole:
     container_name: guacamole
     image: guacamole/guacamole:1.4.0
     restart: unless-stopped
-    network: host
+    networks:
+      - host
     ports:
       - 8080:8080
     environment:
