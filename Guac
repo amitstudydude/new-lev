@@ -43,7 +43,7 @@ initialize_schema() {
   until docker exec $(docker-compose ps -q database) pg_isready -U root; do
     sleep 2
   done
-  # Run the schema initialization
+  # Run the schema initialization correctly with required arguments
   docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u root -p root root
 }
 # Main script execution
