@@ -52,7 +52,7 @@ docker run --name guacamole1 \
   -e MYSQL_USER="guacamole_user" \
   -e MYSQL_PASSWORD="MariaDBUserPass" \
   -e GUACAMOLE_NOAUTH="true" \
-  -d -p 4567:8080 guacamole/guacamole:1.4.0
+  -d guacamole/guacamole:1.4.0
 
 
 echo "Access Guacamole at: http://localhost:8080/guacamole"
