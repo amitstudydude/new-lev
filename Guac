@@ -1,64 +1,63 @@
-docker pull guacamole/guacamole:1.4.0
-docker pull guacamole/guacd:1.4.0
-docker pull mariadb:10.9.5
-docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
-apt install docker-compose
-cat << EOL > docker-compose.yaml
+#!/bin/bash
+# Define variables
+GUACAMOLE_DATABASE=guacamole
+GUACAMOLE_USER=guac
+GUACAMOLE_PASSWORD=your-password-here
+GUACAMOLE_PORT=8080
+WORK_DIR=$(pwd)
+# Function to create the docker-compose.yml file
+create_docker_compose() {
+  cat <<EOF > docker-compose.yml
 version: '3'
 services:
-  guacdb:
-    container_name: guacamoledb
-    image: mariadb:10.9.5
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
-      MYSQL_DATABASE: 'guacamole_db'
-      MYSQL_USER: 'guacamole_user'
-      MYSQL_PASSWORD: 'MariaDBUserPass'
-    volumes:
-      - './db-data:/var/lib/mysql'
-volumes:
-  db-data:
-EOL
-docker-compose up -d
-
-docker cp initdb.sql guacamoledb:/initdb.sql
-docker exec -it guacamoledb cat /initdb.sql | mysql -u root -p guacamole_db
-cp docker-compose.yml docker-compose.yml.bak
-cat << EOF > docker-compose.yaml
-version: '3'
-services:
-  guacdb:
-    container_name: guacamoledb
-    image: mariadb:10.9.5
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
-      MYSQL_DATABASE: 'guacamole_db'
-      MYSQL_USER: 'guacamole_user'
-      MYSQL_PASSWORD: 'MariaDBUserPass'
-    volumes:
-      - './db-data:/var/lib/mysql'
   guacd:
-    container_name: guacd
-    image: guacamole/guacd:1.4.0
-    restart: unless-stopped
-  guacamole:
-    container_name: guacamole
-    image: guacamole/guacamole:1.4.0
-    restart: unless-stopped
-    ports:
-      - 8080:8080
-    environment:
-      GUACD_HOSTNAME: "guacd"
-      MYSQL_HOSTNAME: "guacdb"
-      MYSQL_DATABASE: "guacamole_db"
-      MYSQL_USER: "guacamole_user"
-      MYSQL_PASSWORD: "MariaDBUserPass"
-      TOTP_ENABLED: "false"
+    restart: always
+    image: guacamole/guacd
+  guacamole-server:
+    restart: always
+    image: guacamole/guacamole
     depends_on:
-      - guacdb
-      - guacd
-volumes:
-  db-data:
+      - database
+    ports:
+      - "${GUACAMOLE_PORT}:8080"
+    environment:
+      - GUACD_HOSTNAME=guacd
+      - POSTGRESQL_HOSTNAME=database
+      - POSTGRESQL_DATABASE=${GUACAMOLE_DATABASE}
+      - POSTGRESQL_USER=${GUACAMOLE_USER}
+      - POSTGRESQL_PASSWORD=${GUACAMOLE_PASSWORD}
+  database:
+    restart: always
+    image: postgres:15.5-alpine
+    environment:
+      - POSTGRES_USER=${GUACAMOLE_USER}
+      - POSTGRES_DB=${GUACAMOLE_DATABASE}
+      - POSTGRES_PASSWORD=${GUACAMOLE_PASSWORD}
+    volumes:
+      - ${WORK_DIR}/db:/var/lib/postgresql/data:rw
 EOF
+}
+# Function to start Docker containers
+start_containers() {
+  echo "Starting Docker containers..."
+  docker-compose up -d
+  echo "Waiting for PostgreSQL to initialize..."
+  sleep 10 # Wait for the database to initialize
+}
+# Function to initialize the database schema
+initialize_schema() {
+  echo "Initializing the Guacamole database schema..."
+  # Wait until the database is ready by checking connection
+  until docker exec -it $(docker-compose ps -q database) pg_isready -U $GUACAMOLE_USER; do
+    sleep 2
+  done
+  # Run the schema initialization
+  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u $GUACAMOLE_USER -p $GUACAMOLE_PASSWORD ${GUACAMOLE_DATABASE}
+}
+# Main script execution
+create_docker_compose
+start_containers
+initialize_schema
+echo "Apache Guacamole setup is complete. Access it at http://localhost:${GUACAMOLE_PORT}"
+echo "Default username: guacadmin, Default password: guacadmin"
+echo "Please change the default password after logging in."
