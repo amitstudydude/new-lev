@@ -13,23 +13,25 @@ echo "Generating initial database SQL file..."
 docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
 echo "Starting MariaDB container..."
 
-cat << EOF > docker-compose.yml
-version: '3'
-services:
-  guacdb:
-    container_name: guacamoledb
-    image: mariadb:10.9.5
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
-      MYSQL_DATABASE: 'guacamole_db'
-      MYSQL_USER: 'guacamole_user'
-      MYSQL_PASSWORD: 'MariaDBUserPass'
-    volumes:
-      - './db-data:/var/lib/mysql'
-volumes:
-  db-data:
-EOF
+
+echo "version: '3'" > docker-compose.yml
+echo "" >> docker-compose.yml
+echo "services:" >> docker-compose.yml
+echo "  guacdb:" >> docker-compose.yml
+echo "    container_name: guacamoledb" >> docker-compose.yml
+echo "    image: mariadb:10.9.5" >> docker-compose.yml
+echo "    restart: unless-stopped" >> docker-compose.yml
+echo "    environment:" >> docker-compose.yml
+echo "      MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'" >> docker-compose.yml
+echo "      MYSQL_DATABASE: 'guacamole_db'" >> docker-compose.yml
+echo "      MYSQL_USER: 'guacamole_user'" >> docker-compose.yml
+echo "      MYSQL_PASSWORD: 'MariaDBUserPass'" >> docker-compose.yml
+echo "    volumes:" >> docker-compose.yml
+echo "      - './db-data:/var/lib/mysql'" >> docker-compose.yml
+echo "volumes:" >> docker-compose.yml
+echo "  db-data:" >> docker-compose.yml
+
+
 docker-compose up -d
 
 docker cp initdb.sql guacamoledb:/initdb.sql
