@@ -15,7 +15,7 @@ docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql >
      -e MYSQL_PASSWORD='MariaDBUserPass' \
      -v ./db-data:/var/lib/mysql \
      -d mariadb:10.9.5
-   
+sleep 5
 docker cp initdb.sql guacamoledb:/initdb.sql
 
 sudo /usr/bin/expect <<EOF
