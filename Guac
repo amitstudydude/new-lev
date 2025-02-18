@@ -59,7 +59,7 @@ initialize_schema() {
   docker exec -i $(docker-compose ps -q database) psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE root TO root;"
   # Run the schema initialization using the created user
   docker exec -it $(docker-compose ps -q database) psql -U root -d root
-  docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u root -p root root
+  # docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh --postgresql -u root -p root root
 }
 # Main script execution
 start_containers
