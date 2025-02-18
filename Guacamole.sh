@@ -22,6 +22,7 @@ echo "  guacdb:" >> docker-compose.yml
 echo "    container_name: guacamoledb" >> docker-compose.yml
 echo "    image: mariadb:10.9.5" >> docker-compose.yml
 echo "    restart: unless-stopped" >> docker-compose.yml
+echo '    network_mode: "host"' >> docker-compose.yml
 echo "    environment:" >> docker-compose.yml
 echo "      MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'" >> docker-compose.yml
 echo "      MYSQL_DATABASE: 'guacamole_db'" >> docker-compose.yml
@@ -58,25 +59,24 @@ services:
     container_name: guacamoledb
     image: mariadb:10.9.5
     restart: unless-stopped
-    networks: 
-      - host
+    network_mode: "host"                      # Set to host networking
     environment:
       MYSQL_ROOT_PASSWORD: 'MariaDBRootPass'
       MYSQL_DATABASE: 'guacamole_db'
       MYSQL_USER: 'guacamole_user'
       MYSQL_PASSWORD: 'MariaDBUserPass'
     volumes:
-      - db-data:/var/lib/mysql                 
+      - db-data:/var/lib/mysql                 # Use named volume instead of relative path
   guacd:
     container_name: guacd
     image: guacamole/guacd:1.4.0
-    restart: unless-stopped                 
+    restart: unless-stopped
+    network_mode: "host"                      # Set to host networking
   guacamole:
     container_name: guacamole
     image: guacamole/guacamole:1.4.0
     restart: unless-stopped
-    networks: 
-      - host                      
+    network_mode: "host"                      # Set to host networking
     environment:
       GUACD_HOSTNAME: "localhost"             # Use localhost when using host networking
       MYSQL_HOSTNAME: "localhost"              # Use localhost when using host networking
@@ -86,6 +86,7 @@ services:
   
 volumes:
   db-data:                                    # Named volume for persistent data storage
+                                    # Named volume for persistent data storage
 
 EOF
 docker-compose up -d
