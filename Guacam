@@ -35,10 +35,6 @@ docker-compose up -d
 # Wait for MySQL to initialize
 sleep 15
 # Initialize the Guacamole database
-docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh \
-    --mysql \
-    --users=guac \
-    --password=guacpassword \
-    --databases=guacamole
+docker exec -i $(docker-compose ps -q guacamole-server) /opt/guacamole/bin/initdb.sh  --mysql -u guac -p guacpassword  -d guacamole
 echo "Apache Guacamole setup is complete. Access it at http://localhost:8080"
 echo "Default username: guacadmin, Default password: guacadmin"
