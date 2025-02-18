@@ -1,20 +1,16 @@
 #!/bin/bash
-# Cleanup any existing containers, images, or volumes for Guacamole
 echo "Cleaning up existing Docker containers, images, and volumes..."
-docker rm -f guacamoledb guacd guacamole 2>/dev/null || true  # Force remove existing containers
-docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true  # Force remove images
-docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true  # Remove dangling volumes
-rm -f initdb.sql  # Remove previous init SQL files
-rm -rf ./db-data  # Remove database data directory if exists
-# Pull Docker images
+docker rm -f guacamoledb guacd guacamole 2>/dev/null || true
+docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true
+docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true
+rm -f initdb.sql
+rm -rf ./db-data
 echo "Pulling Docker images..."
 docker pull guacamole/guacamole:1.4.0
 docker pull guacamole/guacd:1.4.0
 docker pull mariadb:10.9.5
-# Generate initial database SQL file
 echo "Generating initial database SQL file..."
 docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
-# Start the MariaDB container and create the my.cnf file inside the container
 echo "Starting MariaDB container..."
 docker run --name guacamoledb \
   -e MYSQL_ROOT_PASSWORD=MariaDBRootPass \
@@ -23,15 +19,17 @@ docker run --name guacamoledb \
   -e MYSQL_PASSWORD=MariaDBUserPass \
   -v $(pwd)/db-data:/var/lib/mysql \
   -d mariadb:10.9.5
-# Wait for the database to initialize
 echo "Waiting for MariaDB to initialize..."
-sleep 10  # Adjust time as necessary; wait for DB to be ready
-# Create the my.cnf file in the MariaDB container
+sleep 30
 echo "Creating MySQL configuration file inside the MariaDB container..."
-docker exec -i guacamoledb bash -c "echo -e '[client]\nuser=root\npassword=MariaDBRootPass' > /etc/my.cnf"
-docker exec -i guacamoledb bash -c "chmod 600 /etc/my.cnf"
+docker exec -i guacamoledb bash -c "echo -e '[client]\nuser=root\npassword=MariaDBRootPass' > /root/.my.cnf"
+docker exec -i guacamoledb bash -c "chmod 600 /root/.my.cnf"
+echo "Copying the initdb.sql file to the database container..."
 docker cp initdb.sql guacamoledb:/initdb.sql
-docker exec -i guacamoledb mysql -p guacamole_db < initdb.sql
+echo "Initializing the database non-interactively..."
+docker exec -i guacamoledb mysql -u root -pMariaDBRootPass guacamole_db < initdb.sql
+echo "Cleaning up..."
+docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
 echo "Starting Guacamole container..."
 docker run --name guacd -d guacamole/guacd:1.4.0
 docker run --name guacamole \
