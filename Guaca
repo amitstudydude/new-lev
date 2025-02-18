@@ -19,15 +19,19 @@ docker run --name guacamoledb \
   -e MYSQL_PASSWORD=MariaDBUserPass \
   -v $(pwd)/db-data:/var/lib/mysql \
   -d mariadb:10.9.5
+docker cp initdb.sql guacamoledb:/initdb.sql
 echo "Waiting for MariaDB to initialize..."
 sleep 5
-echo "Creating MySQL configuration file inside the MariaDB container..."
-docker exec -i guacamoledb bash -c "echo -e '[client]\nuser=root\npassword=MariaDBRootPass' > /root/.my.cnf"
-docker exec -i guacamoledb bash -c "chmod 600 /root/.my.cnf"
-echo "Copying the initdb.sql file to the database container..."
-docker cp initdb.sql guacamoledb:/initdb.sql
-echo "Initializing the database non-interactively..."
-docker exec -i guacamoledb mysql -u root -pMariaDBRootPass guacamole_db < initdb.sql
+sudo /usr/bin/expect <<EOF
+spawn docker exec -it guacamoledb bash
+sleep 1
+send -- "cat /initdb.sql | mysql -u root -p guacamole_db\r"
+sleep 1
+send -- "MariaDBRootPass\r"
+sleep 1
+send -- "exit\r"
+expect eof
+EOF
 docker run --name guacd -d guacamole/guacd:1.4.0
 docker run --name guacamole --link guacd:guacd  -p 8080:8080  -e GUACD_HOSTNAME=guacd  -e MYSQL_HOSTNAME=guacamoledb -e MYSQL_DATABASE=guacamole_db  -e MYSQL_USER=guacamole_user  -e MYSQL_PASSWORD=MariaDBUserPass  -d guacamole/guacamole:1.4.0
 echo "Guacamole installation completed!"
