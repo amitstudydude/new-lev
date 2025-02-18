@@ -19,7 +19,7 @@ sleep 5
 docker cp initdb.sql guacamoledb:/initdb.sql
 
 sudo /usr/bin/expect <<EOF
-spawn docker exec -it guacamoledb bash
+spawn docker exec -it guacamoledb1 bash
 sleep 1
 send -- "cat /initdb.sql | mysql -u root -p guacamole_db\r"
 sleep 1
