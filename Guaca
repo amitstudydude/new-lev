@@ -1,26 +1,11 @@
 #!/bin/bash
-# Variables
-MYSQL_ROOT_PASSWORD='MariaDBRootPass'
-MYSQL_DATABASE='guacamole_db'
-MYSQL_USER='guacamole_user'
-MYSQL_PASSWORD='MariaDBUserPass'
 # Cleanup any existing containers, images, or volumes for Guacamole
 echo "Cleaning up existing Docker containers, images, and volumes..."
-docker-compose down 2>/dev/null || true  # Stops and removes containers without error if they do not exist
 docker rm -f guacamoledb guacd guacamole 2>/dev/null || true  # Force remove existing containers
 docker rmi -f guacamole/guacamole:1.4.0 guacamole/guacd:1.4.0 mariadb:10.9.5 2>/dev/null || true  # Force remove images
 docker volume rm $(docker volume ls -q --filter dangling=true) 2>/dev/null || true  # Remove dangling volumes
-rm -f docker-compose.yml initdb.sql  # Remove previous compose and init SQL files
+rm -f initdb.sql  # Remove previous init SQL files
 rm -rf ./db-data  # Remove database data directory if exists
-# Create ~/.my.cnf for MySQL credentials
-echo "Creating MySQL credentials file at ~/.my.cnf..."
-cat <<EOL > ~/.my.cnf
-[client]
-user=root
-password=$MYSQL_ROOT_PASSWORD
-EOL
-# Set permissions for the .my.cnf file
-chmod 600 ~/.my.cnf
 # Pull Docker images
 echo "Pulling Docker images..."
 docker pull guacamole/guacamole:1.4.0
@@ -29,59 +14,35 @@ docker pull mariadb:10.9.5
 # Generate initial database SQL file
 echo "Generating initial database SQL file..."
 docker run --rm guacamole/guacamole:1.4.0 /opt/guacamole/bin/initdb.sh --mysql > initdb.sql
-# Create the docker-compose.yml file
-cat <<EOL > docker-compose.yml
-version: '3'
-services:
-  guacdb:
-    container_name: guacamoledb
-    image: mariadb:10.9.5
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: '$MYSQL_ROOT_PASSWORD'
-      MYSQL_DATABASE: '$MYSQL_DATABASE'
-      MYSQL_USER: '$MYSQL_USER'
-      MYSQL_PASSWORD: '$MYSQL_PASSWORD'
-    volumes:
-      - './db-data:/var/lib/mysql'
-      - ~/.my.cnf:/root/.my.cnf  # Mounting the .my.cnf file
-  guacd:
-    container_name: guacd
-    image: guacamole/guacd:1.4.0
-    restart: unless-stopped
-  guacamole:
-    container_name: guacamole
-    image: guacamole/guacamole:1.4.0
-    restart: unless-stopped
-    ports:
-      - 8080:8080
-    environment:
-      GUACD_HOSTNAME: "guacd"
-      MYSQL_HOSTNAME: "guacdb"
-      MYSQL_DATABASE: "$MYSQL_DATABASE"
-      MYSQL_USER: "$MYSQL_USER"
-      MYSQL_PASSWORD: "$MYSQL_PASSWORD"
-      TOTP_ENABLED: "true"
-    depends_on:
-      - guacdb
-      - guacd
-volumes:
-  db-data:
-EOL
-# Create the directory for database data
-mkdir -p db-data
-# Start Docker containers
-echo "Starting Docker containers..."
-docker-compose up -d
-# Copy the SQL file to the database container
-echo "Copying the initdb.sql file to the database container..."
+# Start the MariaDB container and create the my.cnf file inside the container
+echo "Starting MariaDB container..."
+docker run --name guacamoledb \
+  -e MYSQL_ROOT_PASSWORD=MariaDBRootPass \
+  -e MYSQL_DATABASE=guacamole_db \
+  -e MYSQL_USER=guacamole_user \
+  -e MYSQL_PASSWORD=MariaDBUserPass \
+  -v $(pwd)/db-data:/var/lib/mysql \
+  -d mariadb:10.9.5
+# Wait for the database to initialize
+echo "Waiting for MariaDB to initialize..."
+sleep 10  # Adjust time as necessary; wait for DB to be ready
+# Create the my.cnf file in the MariaDB container
+echo "Creating MySQL configuration file inside the MariaDB container..."
+docker exec -i guacamoledb bash -c "echo -e '[client]\nuser=root\npassword=MariaDBRootPass' > /etc/my.cnf"
+docker exec -i guacamoledb bash -c "chmod 600 /etc/my.cnf"
 docker cp initdb.sql guacamoledb:/initdb.sql
-# Initialize the database non-interactively using ~/.my.cnf
-echo "Initializing the database non-interactively using ~/.my.cnf..."
-docker exec -i guacamoledb mysql "$MYSQL_DATABASE" < initdb.sql
-# Clean up
-echo "Cleaning up..."
-docker exec -i guacamoledb /bin/bash -c "rm /initdb.sql"
+docker exec -i guacamoledb mysql -p guacamole_db < initdb.sql
+echo "Starting Guacamole container..."
+docker run --name guacd -d guacamole/guacd:1.4.0
+docker run --name guacamole \
+  --link guacd:guacd \
+  -p 8080:8080 \
+  -e GUACD_HOSTNAME=guacd \
+  -e MYSQL_HOSTNAME=guacamoledb \
+  -e MYSQL_DATABASE=guacamole_db \
+  -e MYSQL_USER=guacamole_user \
+  -e MYSQL_PASSWORD=MariaDBUserPass \
+  -d guacamole/guacamole:1.4.0
 echo "Guacamole installation completed!"
 echo "Access Guacamole at http://<Your-IP>:8080/guacamole"
 echo "Default Username: guacadmin"
