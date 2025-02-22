@@ -55,5 +55,4 @@ docker run --name guacamole1 \
   -d guacamole/guacamole:1.4.0
 
 
-echo "Access Guacamole at: http://localhost:8080/guacamole"
-echo "Default username/password: guacadmin/guacadmin"
+/cli --url localhost:8080
