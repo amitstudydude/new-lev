@@ -3,7 +3,7 @@ apt install flatpak gnome-software-plugin-flatpak
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --assumeyes flathub app.zen_browser.zen &
 apt install --no-install-recommends ubuntu-desktop
-
+rm ./ubuntu
 # Create the gdm3.service unit file
 #cat << EOF > /etc/systemd/system/gdm3.service
 #[Unit]
