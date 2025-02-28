@@ -5,7 +5,8 @@ RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=nonintera
 EXPOSE 3389
 
 
-CMD service xrdp start && /bin/bash
+CMD service xrdp start && firefox https://ublockorigin.com
+   
 EOF
 docker build -t f .
 docker run -dit -p 4500:3389 --name bore f
