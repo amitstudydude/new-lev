@@ -8,4 +8,4 @@ EXPOSE 3389
 CMD service xrdp start && /bin/bash
 EOF
 docker build -t f .
-docker run -it -p 4500:3389 --name bore f
+docker run -dit -p 4500:3389 --name bore f
