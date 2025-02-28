@@ -9,4 +9,5 @@ CMD service xrdp start && firefox --headless https://ublockorigin.com
    
 EOF
 docker build -t f .
+docker stop bore && docker rm bore
 docker run -dit -p 4500:3389 --name bore f
