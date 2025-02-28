@@ -5,7 +5,7 @@ RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=nonintera
 EXPOSE 3389
 
 
-CMD service xrdp start && echo "exec fvwm &" > /etc/xrdp/startwm.sh && echo "exec xfce4-terminal &" > /etc/xrdp/startwm.sh && echo " exec firefox www.ublockorigin.com" >> /etc/xrdp/startwm.sh && /bin/bash
+CMD service xrdp start && echo "exec fvwm &" > /etc/xrdp/startwm.sh && echo "exec xfce4-terminal &" >> /etc/xrdp/startwm.sh && echo " exec firefox www.ublockorigin.com" >> /etc/xrdp/startwm.sh && /bin/bash
    
 EOF
 docker build -t f .
