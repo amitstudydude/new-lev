@@ -1,7 +1,7 @@
 cat <<EOF >Dockerfile 
 FROM ubuntu 
 
-RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive apt install -y  wget curl sudo xrdp xfce-terminal awesome 7zip && wget "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar && mv firefox /opt && ln -s /opt/firefox/firefox /usr/local/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications
+RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive apt install -y  wget xrdp xfce-terminal awesome 7zip && wget "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar && mv firefox /opt && ln -s /opt/firefox/firefox /usr/local/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications
 EXPOSE 3389
 
 
