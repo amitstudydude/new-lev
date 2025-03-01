@@ -5,13 +5,14 @@ RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=nonintera
 EXPOSE 3389
 #COPY /onedrive/firefox /root/.mozilla/firefox/
 
-CMD service xrdp start && echo "exec firefox -private-window www.ublockorigin.com & exec xfce4-terminal & exec fvwm " > /etc/xrdp/startwm.sh && /bin/bash
+CMD service xrdp start && echo "exec firefox -private-window www.ublockorigin.com " > /etc/xrdp/startwm.sh && /bin/bash
    
 EOF
 docker build -t f .
 docker stop bore && docker rm bore
 docker run -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla --name bore f
 
+#CMD service xrdp start && echo "exec firefox -private-window www.ublockorigin.com & exec xfce4-terminal & exec fvwm " > /etc/xrdp/startwm.sh && /bin/bash
 
 #docker cp /onedrive/firefox/ bore:/root/.mozilla/firefox/
 #-v /onedrive/firefox/:/root/.mozilla/firefox/
