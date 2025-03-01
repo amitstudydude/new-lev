@@ -10,7 +10,7 @@ CMD service xrdp start && echo "exec xfce4-terminal & exec fvwm & exec firefox -
 EOF
 docker build -t f .
 docker stop bore && docker rm bore
-docker run -dit -p 4500:3389 --name bore f
+docker run -dit -p 4500:3389 -v /onedrive/firefox/:/root/ --name bore f
 
 
 #docker cp /onedrive/firefox/ bore:/root/.mozilla/firefox/
