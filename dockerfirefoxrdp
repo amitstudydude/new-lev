@@ -5,7 +5,7 @@ RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=nonintera
 EXPOSE 3389
 #COPY /onedrive/firefox /root/.mozilla/firefox/
 
-CMD service xrdp start && echo "exec xfce4-terminal & exec fvwm & exec firefox -private-window www.ublockorigin.com " > /etc/xrdp/startwm.sh && /bin/bash
+CMD service xrdp start && echo "exec xfce4-terminal & exec fvwm &  exec firefox -private-window www.ublockorigin.com " > /etc/xrdp/startwm.sh && /bin/bash
    
 EOF
 docker build -t f .
