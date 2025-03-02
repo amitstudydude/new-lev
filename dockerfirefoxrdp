@@ -10,7 +10,4 @@ EOF
 docker build -t f .
 docker rm -f $(docker ps --filter "publish=4500" -q)
 docker run --rm -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla --name bore f
-#CMD service xrdp start && echo " exec xfce4-terminal --command openbox & firefox -p default -private-window www.fast.com " > /etc/xrdp/startwm.sh && /bin/bash
-#PID=$(lsof -ti :4500) && [ -n "$PID" ] && sudo kill -9 $PID
-#firefox -profile " ~/.mozilla/firefox/BnUbRRKc.Profile 1" -private-window
-#firefox -profile " /onedrive/docker/firefox/firefox/BnUbRRKc*" -private-window
+##PID=$(lsof -ti :4500) && [ -n "$PID" ] && sudo kill -9 $PID
