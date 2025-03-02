@@ -4,7 +4,7 @@ FROM ubuntu
 RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive apt install -y  wget xrdp openbox 7zip && wget "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar && mv firefox /opt && rm firefox* && ln -s /opt/firefox/firefox /usr/local/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications && mkdir -p /root/.mozilla/firefox
 EXPOSE 3389
 
-CMD service xrdp start && echo " exec openbox & firefox -p default -private-window" > /etc/xrdp/startwm.sh && /bin/bash
+CMD service xrdp start && echo " exec openbox & firefox -p default -private-window www.fast.com " > /etc/xrdp/startwm.sh && /bin/bash
    
 EOF
 docker build -t f .
