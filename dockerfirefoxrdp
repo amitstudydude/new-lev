@@ -10,6 +10,5 @@ EOF
 docker build -t f .
 docker stop bore && docker rm bore
 docker run -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla --name bore f
-sleep 300
 #CMD service xrdp start && echo "exec firefox -private-window www.ublockorigin.com & exec xfce4-terminal & exec fvwm " > /etc/xrdp/startwm.sh && /bin/bash
 
