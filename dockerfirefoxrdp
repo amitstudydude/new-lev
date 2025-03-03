@@ -10,7 +10,7 @@ CMD echo 'exec xfce4-terminal --command fvwm & exec xfce4-terminal --execute bas
 EOF
 docker build -t f .
 docker rm -f $(docker ps --filter "publish=4500" -q)
-PID=$(lsof -ti :4500) && [ -n "$PID" ] && sudo kill -9 $PID
+export PID=$(lsof -t -i:4500) && kill -9 $PID
 docker run --rm -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla f
 rm Dockerfile
 #insert at 2nd line using sed: 
