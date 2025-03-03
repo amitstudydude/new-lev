@@ -4,7 +4,7 @@ FROM ubuntu
 RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp xfce4-terminal wget 7zip openbox && wget "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar && mv firefox /opt && rm firefox* && ln -s /opt/firefox/firefox /usr/local/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications && mkdir -p /root/.mozilla/firefox
 EXPOSE 3389
 
-CMD echo " exec xfce4-terminal --command firefox -p default -private-window &" > /etc/xrdp/startwm.sh && echo " exec xfce4-terminal --command openbox " >> /etc/xrdp/startwm.sh &&  service xrdp start && /bin/bash
+CMD echo " exec xfce4-terminal --command openbox & firefox -p default -private-window " > /etc/xrdp/startwm.sh && service xrdp start && /bin/bash
    
 EOF
 docker build -t f .
@@ -12,5 +12,4 @@ docker rm -f $(docker ps --filter "publish=4500" -q)
 PID=$(lsof -ti :4500) && [ -n "$PID" ] && sudo kill -9 $PID
 docker run --rm -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla --name bore f
 rm Dockerfile
-##PID=$(lsof -ti :4500) && [ -n "$PID" ] && sudo kill -9 $PID
-#DEBIAN_FRONTEND=noninteractive
+clear
