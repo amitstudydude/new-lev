@@ -14,7 +14,7 @@ docker build -t f .
 docker rm -f $(docker ps --filter "publish=4500" -q)
 docker kill $(docker ps --filter "publish=4500" -q)
 export PID=$(docker inspect --format '{{.State.Pid}}' $(docker ps --filter "publish=4500" -q)) && echo $PID  && kill -9 $PID
-docker run --rm -dit -p 4500:3389 -v /onedrive/docker/firefox/:/root/.mozilla f
+docker run --rm -dit -p 4500:3389 -v /onedrive/docker/.mozilla/:/root/.mozilla f
 docker exec $(docker ps --filter "publish=4500" -q)  bash -c "service xrdp start"
 rm Dockerfile
 cp /onedrive/guacamole_db_backup.tar1 /config/guacamole_db_backup.tar && docker exec guacamole bash -c "pg_restore -d guacamole_db guacamole_db_backup.tar -c -U guacamole"
