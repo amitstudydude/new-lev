@@ -11,7 +11,7 @@ EOF
 docker run --network host  --name guacamole -u root -v /config:/config abesnier/guacamole &
 docker build -t f .
 docker rm -f $(docker ps --filter "publish=4500" -q)
-docker kill $(docker ps --filter "publish=4500" -q)
+#docker kill $(docker ps --filter "publish=4500" -q)
 export PID=$(docker inspect --format '{{.State.Pid}}' $(docker ps --filter "publish=4500" -q)) && echo $PID  && kill -9 $PID
 docker run --rm -dit -p 4500:3389  f
 docker exec $(docker ps --filter "publish=4500" -q)  bash -c "service xrdp start"
