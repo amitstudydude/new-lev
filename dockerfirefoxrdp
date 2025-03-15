@@ -2,7 +2,7 @@ mkdir -p ~/.config/rclone/ /onedrive /config  && wget https://raw.githubusercont
 cat <<EOF >Dockerfile 
 FROM ubuntu 
 RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp xfce4-terminal jwm 
-RUN mkdir -p /onedrive ; echo 'exec jwm & exec xfce4-terminal --execute bash -c "/zen ; exec bash"'> /etc/xrdp/startwm.sh && echo 'cd && rm -rf ~/.zen ~/zen ; ln -s /onedrive/docker/.zen ~/ && apt install jq wget 7zip -y && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen && zen'>/zen && chmod +x /zen
+RUN mkdir -p /onedrive ; echo 'exec jwm & exec xfce4-terminal --execute bash -c "/zen ; exec bash"'> /etc/xrdp/startwm.sh && echo 'cd && rm -rf ~/.zen ~/zen ; ln -s /onedrive/docker/.zen ~/ && apt install wget 7zip -y && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen && zen'>/zen && chmod +x /zen
 #curl -s https://api.github.com/repos/zen-browser/desktop/releases/latest | jq -r '.assets[] | select(.name | test("linux-x86_64.tar.xz")) | .browser_download_url' | xargs curl -LO && 
 EXPOSE 3389
 EOF
