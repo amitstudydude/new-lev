@@ -4,6 +4,10 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 flatpak install --assumeyes flathub app.zen_browser.zen &
 apt install --no-install-recommends ubuntu-desktop
 rm ./ubuntu
+   
+
+# apt install jq -y && curl -s https://api.github.com/repos/zen-browser/desktop/releases/latest | jq -r '.assets[] | select(.name | test("linux-x86_64.tar.xz")) | .browser_download_url' | xargs curl -LO
+   
 # Create the gdm3.service unit file
 #cat << EOF > /etc/systemd/system/gdm3.service
 #[Unit]
