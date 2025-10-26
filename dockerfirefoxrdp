@@ -1,9 +1,7 @@
 mkdir -p ~/.config/rclone/ /onedrive /config  && wget https://raw.githubusercontent.com/amitstudydude/RDP_Linux/main/scripts/rclone.conf && mv rclone.conf ~/.config/rclone && curl https://rclone.org/install.sh | sudo bash  && rclone listremotes && rclone mount onedrive:PC /onedrive --allow-non-empty --vfs-cache-mode full --user-agent 'Mozilla' --vfs-cache-mode full --cache-dir 'cache' --allow-other  --transfers 100 --daemon --vfs-cache-poll-interval 1s --vfs-cache-max-age 1s --vfs-write-back 1s -P 
 cat <<EOF >Dockerfile 
 FROM ubuntu 
-RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp xfce4-terminal jwm 
-RUN mkdir -p /onedrive ; echo 'exec jwm & exec xfce4-terminal --execute bash -c "/zen ; exec bash"'> /etc/xrdp/startwm.sh && echo 'cd && rm -rf ~/.zen ~/zen ; ln -s /onedrive/docker/.zen ~/ && apt install wget 7zip -y && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen && zen'>/zen && chmod +x /zen
-#curl -s https://api.github.com/repos/zen-browser/desktop/releases/latest | jq -r '.assets[] | select(.name | test("linux-x86_64.tar.xz")) | .browser_download_url' | xargs curl -LO && 
+RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp xfce4 wget 7zip curl && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen && zen'>/zen && chmod +x /zen
 EXPOSE 3389
 EOF
 docker run --network host  --name guacamole -u root -v /config:/config abesnier/guacamole &
@@ -13,13 +11,3 @@ docker run --rm -dit -p 4500:3389  -v /onedrive/:/onedrive/ zen
 docker exec $(docker ps --filter "publish=4500" -q)  bash -c "service xrdp start"
 rm Dockerfile
 
-#export PID=$(docker inspect --format '{{.State.Pid}}' $(docker ps --filter "publish=4500" -q)) && echo $PID  && kill -9 $PID
-#docker kill $(docker ps --filter "publish=4500" -q)
-#cp /onedrive/guacamole_db_backup.tar1 /config/guacamole_db_backup.tar && docker exec guacamole bash -c "pg_restore -d guacamole_db guacamole_db_backup.tar -c -U guacamole"
-#insert at 2nd line using sed: 
-#sed -i '2i exec xfce4-terminal --command openbox & exec firefox -p default -private-window & ' /etc/xrdp/startwm.sh
-#CMD sed -i '2i exec xfce4-terminal --command openbox & exec firefox -p default -private-window & ' /etc/xrdp/startwm.sh && service xrdp start && /bin/bash
-#getting pid of process: docker inspect --format '{{.State.Pid}}' $(docker ps --filter "publish=4500" -q)
-#echo 'cd   && rm -rf /usr/bin/firefox* /opt/firefox* /usr/local/share/applications/firefox.desktop* ; wget -O firefox.tar.xz "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar  && mv firefox /opt/ && rm -rf firefox* && ln -s /opt/firefox/firefox /usr/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications && rm -rf ~/.mozilla ; ln -s /onedrive/docker/.mozilla ~/  && firefox -p default ' >/firefox && chmod +x /firefox 
-#RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp xfce4-terminal wget 7zip jwm && echo 'exec jwm & exec xfce4-terminal --execute bash -c "/firefox ; exec bash"'> /etc/xrdp/startwm.sh && echo 'cd   && rm -rf /usr/bin/firefox* /opt/firefox* /usr/local/share/applications/firefox.desktop* ; wget -O firefox.tar.xz "https://download.mozilla.org/?product=firefox-nightly-latest&os=linux64&lang=en-US" --trust-server-names && 7z x *xz && 7z x *tar  && mv firefox /opt/ && rm -rf firefox* && ln -s /opt/firefox/firefox /usr/bin/firefox && wget https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop -P /usr/local/share/applications && firefox  ' >/firefox && chmod +x /firefox 
-#bash <(curl -s https://updates.zen-browser.app/install.sh)`
