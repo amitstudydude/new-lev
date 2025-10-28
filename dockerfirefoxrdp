@@ -1,7 +1,7 @@
 mkdir -p ~/.config/rclone/ /onedrive /config  && wget https://raw.githubusercontent.com/amitstudydude/RDP_Linux/main/scripts/rclone.conf && mv rclone.conf ~/.config/rclone && curl https://rclone.org/install.sh | sudo bash  && rclone listremotes && rclone mount onedrive:PC /onedrive --allow-non-empty --vfs-cache-mode full --user-agent 'Mozilla' --vfs-cache-mode full --cache-dir 'cache' --allow-other  --transfers 100 --daemon --vfs-cache-poll-interval 1s --vfs-cache-max-age 1s --vfs-write-back 1s -P 
 cat <<EOF >Dockerfile 
 FROM ubuntu 
-RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp openbox wget 7zip curl && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen && zen
+RUN printf "root\nroot" | passwd root && apt update && DEBIAN_FRONTEND=noninteractive  apt install -y xrdp openbox wget 7zip curl && wget -O zen.linux-x86_64.tar.xz https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz && 7z x *tar* && 7z x *tar && rm -rf *tar* && echo "~/zen/zen -private-browser " >/usr/bin/zen && chmod +x /usr/bin/zen 
 EXPOSE 3389
 EOF
 docker run --network host  --name guacamole -u root -v /config:/config abesnier/guacamole &
